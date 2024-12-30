@@ -9,22 +9,22 @@ A simple script to manage Proton-GE releases on your system. Simplifies the proc
 ## Simple usage
 - Steam Deck
     ```bash
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/main/native/proton-ge-manager.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/refs/heads/main/scripts/native/proton-ge-manager.sh)"
     ```
 
 - Steam (Native)
     ```bash
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/main/native/proton-ge-manager.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/refs/heads/main/scripts/native/proton-ge-manager.sh)"
     ```
 
 - Steam (Flatpak)
     ```bash
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/main/flatpak/proton-ge-manager.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/refs/heads/main/scripts/flatpak/proton-ge-manager.sh)"
     ```
 
 - Steam (Snap)
     ```bash
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/main/snap/proton-ge-manager.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/pebeto/proton-ge-manager/refs/heads/main/scripts/snap/proton-ge-manager.sh)"
     ```
 
 After the process is complete, you will be able to use the specified version of Proton-GE in your Steam client. To do so, open (restart) the Steam client, right-click on a game, select **Properties**, go to the **Compatibility** tab, and select the desired version of Proton-GE from the dropdown menu.
