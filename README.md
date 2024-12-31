@@ -6,6 +6,8 @@ A simple script to manage Proton-GE releases on your system. Simplifies the proc
 > repository, and with the standard directory structure used by Steam across different
 > platforms (Steam Deck, Native installation, Flatpak, and Snap).
 
+![Proton-GE Manager in action](./proton-ge-manager.gif)
+
 ## Simple usage
 - Steam Deck
     ```bash
