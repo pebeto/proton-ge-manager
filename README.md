@@ -9,6 +9,9 @@ A simple script to manage Proton-GE releases on your system. Simplifies the proc
 ![Proton-GE Manager in action](./proton-ge-manager.gif)
 
 ## Simple usage
+> [!NOTE]
+> The endpoint used in the following examples is a simple API that provides the latest
+> script version. You can see the endpoint source code [here](https://github.com/pebeto/pebeto.github.io/blob/master/app/api/pgm/%5Btype%5D/route.tsx)
 - Steam Deck
     ```bash
     sh -c "$(curl -fsSL https://pebeto.github.io/api/pgm/steamdeck) -l"
