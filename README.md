@@ -37,19 +37,27 @@ In case of using the Steam Deck, switch back to Gaming Mode to apply the changes
 
 ## Advanced usage
 The script provides a simple interface to manage Proton-GE releases on your system. The following commands are available:
-- `-i, --install`: Install a specific Proton-GE version (`./proton-ge-manager.sh -i 9-10`).
+- `-i, --install`: Install a specific Proton-GE version (`./proton-ge-manager.sh -i 9-10`). Skips download if the version is already installed; pass `-f` to reinstall.
 - `-l, --latest`: Install the latest Proton-GE version (`./proton-ge-manager.sh -l`).
+- `-L, --list`: List installed Proton-GE versions (`./proton-ge-manager.sh -L`).
 - `-r, --remove`: Remove an installed Proton-GE version (`./proton-ge-manager.sh -r 9-10`).
-- `-p, --purge`: Remove all installed Proton-GE versions (`./proton-ge-manager.sh -p`).
+- `-p, --purge`: Remove all installed Proton-GE versions (`./proton-ge-manager.sh -p`). Prompts for confirmation; pass `-y` to skip.
+- `-f, --force`: Reinstall even if the version is already present.
+- `-y, --yes`: Skip confirmation prompts.
 - `-h, --help`: Display the help message.
     ```bash
     > bash scripts/native/proton-ge-manager.sh -h
     Usage: proton-ge-manager.sh [OPTION]
-    
+
     Options:
       -h, --help      Display this help message
       -i, --install   Install specific Proton-GE version
       -l, --latest    Install latest Proton-GE version
+      -L, --list      List installed Proton-GE versions
       -r, --remove    Remove an installed Proton-GE version
       -p, --purge     Remove all installed Proton-GE versions
+      -f, --force     Reinstall even if the version is already present
+      -y, --yes       Skip confirmation prompts
     ```
+
+Downloads are verified against the upstream `.sha512sum` published with each release before extraction.
