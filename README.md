@@ -1,5 +1,5 @@
 # proton-ge-manager
-A simple script to manage Proton-GE releases on your system. Simplifies the process of downloading, installing, and removing Proton-GE releases.
+A small script to download, install, and remove Proton-GE releases on your system.
 
 > [!NOTE]
 > This utility is only compatible with Proton-GE releases from GloriousEggroll's GitHub
@@ -8,10 +8,20 @@ A simple script to manage Proton-GE releases on your system. Simplifies the proc
 
 ![Proton-GE Manager in action](./proton-ge-manager.gif)
 
-## Simple usage
+## Features
+
+- Progress bars for downloads and extractions
+- Color-coded output (on terminals that support it; honors `NO_COLOR`)
+- Automatic download resume for interrupted transfers
+- SHA-512 checksum verification before extraction
+- Backup creation before purge operations
+- Clear error messages with suggested fixes
+- Shell completion for bash and zsh
+
+## Quick start
 > [!NOTE]
-> The endpoint used in the following examples is a simple API that provides the latest
-> script version. You can see the endpoint source code [here](https://github.com/pebeto/pebeto.github.io/blob/master/app/api/pgm/%5Btype%5D/route.tsx)
+> The one-liners below fetch the script from a small API that always serves the latest
+> version. You can read the endpoint source [here](https://github.com/pebeto/pebeto.github.io/blob/master/app/api/pgm/%5Btype%5D/route.tsx).
 - Steam Deck
     ```bash
     sh -c "$(curl -fsSL https://pebeto.github.io/api/pgm/steamdeck) -l"
@@ -32,41 +42,61 @@ A simple script to manage Proton-GE releases on your system. Simplifies the proc
     sh -c "$(curl -fsSL https://pebeto.github.io/api/pgm/snap) -l"
     ```
 
-After the process is complete, you will be able to use the latest version of Proton-GE in your Steam client. To do so, open (restart) the Steam client, right-click on a game, select **Properties**, go to the **Compatibility** tab, and select the downloaded version of Proton-GE from the dropdown menu.
-In case of using the Steam Deck, switch back to Gaming Mode to apply the changes.
+Once it finishes, restart Steam, right-click a game, open **Properties → Compatibility**, and pick the new Proton-GE version from the dropdown. On Steam Deck, switch back to Gaming Mode to apply the change.
 
-## Advanced usage
-The script provides a simple interface to manage Proton-GE releases on your system. The following commands are available:
-- `-i, --install`: Install a specific Proton-GE version (`./proton-ge-manager.sh -i 9-10`). Skips download if the version is already installed; pass `-f` to reinstall.
-- `-l, --latest`: Install the latest Proton-GE version (`./proton-ge-manager.sh -l`).
-- `-L, --list`: List installed Proton-GE versions (`./proton-ge-manager.sh -L`).
-- `-s, --status`: Show detailed status of installed versions including size and file count.
-- `-r, --remove`: Remove an installed Proton-GE version (`./proton-ge-manager.sh -r 9-10`).
-- `-p, --purge`: Remove all installed Proton-GE versions (`./proton-ge-manager.sh -p`). Prompts for confirmation; pass `-y` to skip.
+## Commands
+
+- `-i, --install <version>`: Install a specific Proton-GE version (e.g., `./proton-ge-manager.sh -i 9-10`). Skips download if already installed; use `-f` to force reinstall.
+- `-l, --latest`: Install the latest Proton-GE version automatically.
+- `-L, --list`: List installed Proton-GE versions.
+- `-s, --status`: Show detailed status including version, location, size, and file count.
+- `-r, --remove <version>`: Remove a specific Proton-GE version.
+- `-p, --purge`: Remove ALL installed Proton-GE versions. Offers backup option before deletion.
 - `-I, --interactive`: Launch interactive setup wizard for guided installation.
-- `-f, --force`: Reinstall even if the version is already present.
-- `-y, --yes`: Skip confirmation prompts.
-- `-h, --help`: Display the help message.
-    ```bash
-    > sh scripts/native/proton-ge-manager.sh -h
-    Usage: proton-ge-manager.sh [OPTION]
+- `-f, --force`: Force reinstallation even if version is present.
+- `-y, --yes`: Skip all confirmation prompts.
+- `-h, --help`: Display this help message.
 
-    Options:
-      -h, --help      Display this help message
-      -i, --install   Install specific Proton-GE version
-      -l, --latest    Install latest Proton-GE version
-      -L, --list      List installed Proton-GE versions
-      -r, --remove    Remove an installed Proton-GE version
-      -p, --purge     Remove all installed Proton-GE versions
-      -f, --force     Reinstall even if the version is already present
-      -y, --yes       Skip confirmation prompts
-    ```
+Run `./proton-ge-manager.sh -h` to print this list at any time.
 
-Downloads are verified against the upstream `.sha512sum` published with each release before extraction.
+## Examples
 
-## Shell Completion
+Create a backup before purging everything:
+```bash
+./proton-ge-manager.sh -p
+# answer "y" to purge, then "y" to create the backup
+```
 
-For enhanced command-line experience, enable shell completion:
+Reinstall a version you already have:
+```bash
+./proton-ge-manager.sh -i 9-19 -f
+```
+
+Install the latest version without any prompts:
+```bash
+./proton-ge-manager.sh -l -y
+```
+
+## Configuration
+
+Set these environment variables before running the script:
+
+- `COMPATIBILITYTOOLS_DIR`: Override the default Steam compatibility tools directory
+- `NO_COLOR`: Set to any value to disable color output
+
+Example:
+```bash
+COMPATIBILITYTOOLS_DIR=/custom/path ./proton-ge-manager.sh -l
+```
+
+## Shell completion
+
+The completion scripts ship in this repository, so clone it first:
+```bash
+git clone https://github.com/pebeto/proton-ge-manager.git
+```
+
+Then source the script for your shell.
 
 ### Bash
 
@@ -82,4 +112,37 @@ Add to your `~/.zshrc`:
 source /path/to/proton-ge-manager/scripts/proton-ge-manager-completion.zsh
 ```
 
-After adding, run `source ~/.bashrc` or `source ~/.zshrc` to enable completion.
+Reload with `source ~/.bashrc` or `source ~/.zshrc` to enable completion.
+
+## Troubleshooting
+
+**Steam path not found**:
+```
+Steam compatibility tools directory not found at: /path/to/dir
+```
+- Ensure Steam is installed
+- Launch Steam at least once
+- Check your Steam installation path
+
+**Download failed**:
+```
+Error: failed to download Proton-GE X-Y
+```
+- Check your internet connection
+- Try again later (GitHub may be rate limiting)
+- Downloads resume automatically if interrupted
+
+**Checksum mismatch**:
+```
+Error: checksum mismatch
+```
+- The download may be corrupted
+- Try downloading again
+- Ensure you have enough disk space
+
+**Invalid version format**:
+```
+Error: invalid version format: invalid
+```
+- Use format like `9-19` or `10-0`
+- Check available versions on [GloriousEggroll's GitHub](https://github.com/GloriousEggroll/proton-ge-custom/releases)

@@ -9,8 +9,8 @@ FORCE=0
 ASSUME_YES=0
 
 # Color codes for better output visibility
-# Enable colors by default if terminal supports them, disable if not
-if [ -t 1 ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors)" -ge 8 ] 2>/dev/null; then
+# Enable colors when stdout is a terminal that supports them and NO_COLOR is unset
+if [ -z "$NO_COLOR" ] && [ -t 1 ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors)" -ge 8 ] 2>/dev/null; then
     RED=$(printf '\033[0;31m')
     GREEN=$(printf '\033[0;32m')
     YELLOW=$(printf '\033[1;33m')
@@ -91,7 +91,7 @@ install_proton_ge () {
     trap 'rm -f "$tarball"' EXIT INT TERM
 
     echo "${BLUE}Downloading Proton-GE $version...${NC}"
-    if ! curl --fail -L -# -o "$tarball" "$tarball_url"; then
+    if ! curl --fail -L -C - -# -o "$tarball" "$tarball_url"; then
         echo "${RED}Error: failed to download Proton-GE $version${NC}"
         echo "${YELLOW}Check your internet connection or try again later.${NC}"
         exit 1
@@ -262,11 +262,35 @@ remove_proton_ge () {
 }
 
 purge_proton_ge () {
+    # Check if there are versions to purge
+    versions=$(ls "$COMPATIBILITYTOOLS_DIR"/GE-Proton* 2>/dev/null)
+    if [ -z "$versions" ]; then
+        echo "${YELLOW}No Proton-GE versions installed to purge.${NC}"
+        exit 0
+    fi
+    
+    # Offer backup option
     if [ "$ASSUME_YES" -eq 0 ]; then
         printf "This will remove ALL installed Proton-GE versions. Continue? (y/N): "
         read -r answer
         case "$answer" in
-            y|Y|yes|YES) ;;
+            y|Y|yes|YES) 
+                printf "Create backup before purging? (y/N): "
+                read -r backup_answer
+                case "$backup_answer" in
+                    y|Y|yes|YES)
+                        backup_dir="$HOME/proton-ge-backup-$(date +%Y%m%d-%H%M%S)"
+                        echo "${BLUE}Creating backup at: $backup_dir${NC}"
+                        mkdir -p "$backup_dir"
+                        cp -r "$COMPATIBILITYTOOLS_DIR"/GE-Proton* "$backup_dir" 2>/dev/null
+                        if [ $? -eq 0 ]; then
+                            echo "${GREEN}Backup created successfully!${NC}"
+                        else
+                            echo "${YELLOW}Warning: Backup creation failed.${NC}"
+                        fi
+                        ;;
+                esac
+                ;;
             *) echo "${YELLOW}Aborted.${NC}"
               echo "${YELLOW}Use -y to skip confirmation next time.${NC}"
               exit 1 ;;
