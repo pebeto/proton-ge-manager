@@ -53,7 +53,7 @@ install_proton_ge () {
     trap 'rm -f "$tarball"' EXIT INT TERM
 
     echo "Downloading Proton-GE $version..."
-    if ! curl --fail -L -o "$tarball" "$tarball_url"; then
+    if ! curl --fail -L -# -o "$tarball" "$tarball_url"; then
         echo "Error: failed to download Proton-GE $version"
         exit 1
     fi
@@ -77,7 +77,7 @@ install_proton_ge () {
     fi
 
     echo "Extracting Proton-GE $version..."
-    tar -xzf "$tarball" -C "$COMPATIBILITYTOOLS_DIR"
+    tar -xzf "$tarball" -C "$COMPATIBILITYTOOLS_DIR" 2>&1 | grep -v "^tar:" | grep -v "^" || true
     echo "Proton-GE $version installed successfully!"
     exit 0
 }
