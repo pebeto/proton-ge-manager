@@ -61,3 +61,23 @@ The script provides a simple interface to manage Proton-GE releases on your syst
     ```
 
 Downloads are verified against the upstream `.sha512sum` published with each release before extraction.
+
+## Shell Completion
+
+For enhanced command-line experience, enable shell completion:
+
+### Bash
+
+Add to your `~/.bashrc`:
+```bash
+source /path/to/proton-ge-manager/scripts/proton-ge-manager-completion.bash
+```
+
+### Zsh
+
+Add to your `~/.zshrc`:
+```zsh
+source /path/to/proton-ge-manager/scripts/proton-ge-manager-completion.zsh
+```
+
+After adding, run `source ~/.bashrc` or `source ~/.zshrc` to enable completion.
