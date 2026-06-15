@@ -53,9 +53,26 @@ validate_version () {
     esac
 }
 
+verify_steam_path () {
+    if [ ! -d "$COMPATIBILITYTOOLS_DIR" ]; then
+        echo "${YELLOW}Steam compatibility tools directory not found at: ${NC}"
+        echo "${BLUE}$COMPATIBILITYTOOLS_DIR${NC}"
+        echo ""
+        echo "${YELLOW}This may indicate:${NC}"
+        echo "  - Steam is not installed"
+        echo "  - Steam has not been launched yet"
+        echo "  - You are using a different installation method"
+        echo ""
+        echo "${YELLOW}Please ensure Steam is installed and has been launched at least once.${NC}"
+        echo "${YELLOW}If you are using a custom Steam installation, set COMPATIBILITYTOOLS_DIR before running this script.${NC}"
+        exit 1
+    fi
+}
+
 install_proton_ge () {
     version=$1
     validate_version "$version"
+    verify_steam_path
     target_dir="$COMPATIBILITYTOOLS_DIR/GE-Proton$version"
 
     if [ -d "$target_dir" ] && [ "$FORCE" -eq 0 ]; then
@@ -111,6 +128,7 @@ get_latest_version () {
 }
 
 install_latest_proton_ge () {
+    verify_steam_path
     latest_version=$(get_latest_version)
     if [ -z "$latest_version" ]; then
         echo "${RED}Error: failed to determine latest version${NC}"
@@ -139,6 +157,7 @@ list_proton_ge () {
 }
 
 show_status () {
+    verify_steam_path
     if [ ! -d "$COMPATIBILITYTOOLS_DIR" ]; then
         echo "${YELLOW}No Proton-GE versions installed.${NC}"
         exit 0
@@ -166,16 +185,15 @@ show_status () {
 }
 
 interactive_mode () {
+    verify_steam_path
     echo "${BLUE}Proton-GE Manager Interactive Setup${NC}"
     echo "----------------------------------------"
     
     # Check if any versions are installed
-    if [ -d "$COMPATIBILITYTOOLS_DIR" ]; then
-        count=$(ls -1 "$COMPATIBILITYTOOLS_DIR"/GE-Proton* 2>/dev/null | wc -l)
-        if [ "$count" -gt 0 ]; then
-            echo "${YELLOW}Found $count installed Proton-GE version(s).${NC}"
-            echo ""
-        fi
+    count=$(ls -1 "$COMPATIBILITYTOOLS_DIR"/GE-Proton* 2>/dev/null | wc -l)
+    if [ "$count" -gt 0 ]; then
+        echo "${YELLOW}Found $count installed Proton-GE version(s).${NC}"
+        echo ""
     fi
     
     # Show menu
