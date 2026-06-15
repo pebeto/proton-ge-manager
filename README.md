@@ -20,8 +20,13 @@ A small script to download, install, and remove Proton-GE releases on your syste
 
 ## Quick start
 > [!NOTE]
-> The one-liners below fetch the script from a small API that always serves the latest
+> These commands fetch the script from a small API that always serves the latest
 > version. You can read the endpoint source [here](https://github.com/pebeto/pebeto.github.io/blob/master/app/api/pgm/%5Btype%5D/route.tsx).
+
+### Install the latest Proton-GE
+
+Run the line for your platform:
+
 - Steam Deck
     ```bash
     sh -c "$(curl -fsSL https://pebeto.github.io/api/pgm/steamdeck) -l"
@@ -43,6 +48,18 @@ A small script to download, install, and remove Proton-GE releases on your syste
     ```
 
 Once it finishes, restart Steam, right-click a game, open **Properties → Compatibility**, and pick the new Proton-GE version from the dropdown. On Steam Deck, switch back to Gaming Mode to apply the change.
+
+### Install the manager (for repeat use)
+
+The command above downloads the script, runs it once, and discards it. To manage versions over time, save it to your `PATH` instead. Replace `native` with your platform (`steamdeck`, `native`, `flatpak`, or `snap`):
+
+```bash
+curl -fsSL https://pebeto.github.io/api/pgm/native -o ~/.local/bin/proton-ge-manager
+chmod +x ~/.local/bin/proton-ge-manager
+proton-ge-manager -l
+```
+
+If `~/.local/bin` is not on your `PATH`, add it or choose another directory that is. After this, run `proton-ge-manager` directly with any command.
 
 ## Commands
 
