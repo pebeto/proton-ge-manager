@@ -46,7 +46,7 @@ The script provides a simple interface to manage Proton-GE releases on your syst
 - `-y, --yes`: Skip confirmation prompts.
 - `-h, --help`: Display the help message.
     ```bash
-    > bash scripts/native/proton-ge-manager.sh -h
+    > sh scripts/native/proton-ge-manager.sh -h
     Usage: proton-ge-manager.sh [OPTION]
 
     Options:

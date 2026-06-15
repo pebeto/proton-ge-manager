@@ -1,0 +1,4 @@
+*.tar.gz
+*.sha512sum
+.DS_Store
+Thumbs.db
