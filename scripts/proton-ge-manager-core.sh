@@ -9,11 +9,21 @@ FORCE=0
 ASSUME_YES=0
 
 # Color codes for better output visibility
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Enable colors by default if terminal supports them, disable if not
+if [ -t 1 ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors)" -ge 8 ] 2>/dev/null; then
+    RED=$(printf '\033[0;31m')
+    GREEN=$(printf '\033[0;32m')
+    YELLOW=$(printf '\033[1;33m')
+    BLUE=$(printf '\033[0;34m')
+    NC=$(printf '\033[0m') # No Color
+else
+    # No colors for terminals without color support
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    NC=''
+fi
 
 display_help () {
     echo "Usage: proton-ge-manager.sh [OPTION]"
@@ -23,8 +33,10 @@ display_help () {
     echo "  -i, --install   Install specific Proton-GE version"
     echo "  -l, --latest    Install latest Proton-GE version"
     echo "  -L, --list      List installed Proton-GE versions"
+    echo "  -s, --status    Show detailed status of installed versions"
     echo "  -r, --remove    Remove an installed Proton-GE version"
     echo "  -p, --purge     Remove all installed Proton-GE versions"
+    echo "  -I, --interactive Interactive setup wizard"
     echo "  -f, --force     Reinstall even if the version is already present"
     echo "  -y, --yes       Skip confirmation prompts"
     exit 0
@@ -95,7 +107,7 @@ install_proton_ge () {
 }
 
 get_latest_version () {
-    curl --fail -s "$API_URL" | awk -F '"' '/tag_name/{print $4}' | sed -n 's/.*\([0-9]\+-[0-9]\+\).*/\1/p'
+    curl --fail -s "$API_URL" | awk -F '"' '/tag_name/{print $4}' | sed 's/GE-Proton//'
 }
 
 install_latest_proton_ge () {
@@ -124,6 +136,96 @@ list_proton_ge () {
         echo "${YELLOW}No Proton-GE versions installed.${NC}"
     fi
     exit 0
+}
+
+show_status () {
+    if [ ! -d "$COMPATIBILITYTOOLS_DIR" ]; then
+        echo "${YELLOW}No Proton-GE versions installed.${NC}"
+        exit 0
+    fi
+    found=0
+    echo "${BLUE}Installed Proton-GE versions:${NC}"
+    echo "----------------------------------------"
+    for dir in "$COMPATIBILITYTOOLS_DIR"/GE-Proton*; do
+        [ -d "$dir" ] || continue
+        version="${dir##*/GE-Proton}"
+        size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+        files=$(find "$dir" -type f | wc -l)
+        echo "Version: ${BLUE}$version${NC}"
+        echo "  Location: $dir"
+        echo "  Size: $size"
+        echo "  Files: $files"
+        echo "  Status: ${GREEN}Installed${NC}"
+        echo ""
+        found=1
+    done
+    if [ "$found" -eq 0 ]; then
+        echo "${YELLOW}No Proton-GE versions installed.${NC}"
+    fi
+    exit 0
+}
+
+interactive_mode () {
+    echo "${BLUE}Proton-GE Manager Interactive Setup${NC}"
+    echo "----------------------------------------"
+    
+    # Check if any versions are installed
+    if [ -d "$COMPATIBILITYTOOLS_DIR" ]; then
+        count=$(ls -1 "$COMPATIBILITYTOOLS_DIR"/GE-Proton* 2>/dev/null | wc -l)
+        if [ "$count" -gt 0 ]; then
+            echo "${YELLOW}Found $count installed Proton-GE version(s).${NC}"
+            echo ""
+        fi
+    fi
+    
+    # Show menu
+    while true; do
+        echo "${BLUE}Options:${NC}"
+        echo "  1. Install latest Proton-GE version"
+        echo "  2. Install specific Proton-GE version"
+        echo "  3. List installed versions"
+        echo "  4. Show detailed status"
+        echo "  5. Remove a version"
+        echo "  6. Purge all versions"
+        echo "  7. Exit"
+        echo ""
+        printf "Select an option (1-7): "
+        read -r choice
+        echo ""
+        
+        case "$choice" in
+            1)
+                install_latest_proton_ge
+                ;;
+            2)
+                printf "Enter version (e.g., 9-19): "
+                read -r version
+                install_proton_ge "$version"
+                ;;
+            3)
+                list_proton_ge
+                ;;
+            4)
+                show_status
+                ;;
+            5)
+                printf "Enter version to remove (e.g., 9-19): "
+                read -r version
+                remove_proton_ge "$version"
+                ;;
+            6)
+                purge_proton_ge
+                ;;
+            7)
+                echo "${GREEN}Goodbye!${NC}"
+                exit 0
+                ;;
+            *)
+                echo "${RED}Invalid option. Please try again.${NC}"
+                ;;
+        esac
+        echo ""
+    done
 }
 
 remove_proton_ge () {
@@ -184,6 +286,10 @@ while [ $# -gt 0 ]; do
             action="list"
             shift
             ;;
+        -s|--status)
+            action="status"
+            shift
+            ;;
         -r|--remove)
             if [ -z "$2" ]; then
                 echo "${RED}Error: $1 requires a version argument${NC}"
@@ -196,6 +302,10 @@ while [ $# -gt 0 ]; do
             ;;
         -p|--purge)
             action="purge"
+            shift
+            ;;
+        -I|--interactive)
+            action="interactive"
             shift
             ;;
         -f|--force)
@@ -218,7 +328,9 @@ case "$action" in
     install) install_proton_ge "$action_arg" ;;
     latest)  install_latest_proton_ge ;;
     list)    list_proton_ge ;;
+    status)  show_status ;;
     remove)  remove_proton_ge "$action_arg" ;;
     purge)   purge_proton_ge ;;
+    interactive) interactive_mode ;;
     "")      display_help ;;
 esac

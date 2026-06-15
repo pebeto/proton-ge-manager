@@ -15,7 +15,7 @@ _proton_ge_manager_complete() {
     esac
     
     # Main options
-    COMPREPLY=($(compgen -W "-h --help -i --install -l --latest -L --list -r --remove -p --purge -f --force -y --yes" -- "$cur"))
+    COMPREPLY=($(compgen -W "-h --help -i --install -l --latest -L --list -s --status -r --remove -p --purge -I --interactive -f --force -y --yes" -- "$cur"))
 }
 
 complete -F _proton_ge_manager_complete proton-ge-manager.sh

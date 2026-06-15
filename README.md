@@ -40,8 +40,10 @@ The script provides a simple interface to manage Proton-GE releases on your syst
 - `-i, --install`: Install a specific Proton-GE version (`./proton-ge-manager.sh -i 9-10`). Skips download if the version is already installed; pass `-f` to reinstall.
 - `-l, --latest`: Install the latest Proton-GE version (`./proton-ge-manager.sh -l`).
 - `-L, --list`: List installed Proton-GE versions (`./proton-ge-manager.sh -L`).
+- `-s, --status`: Show detailed status of installed versions including size and file count.
 - `-r, --remove`: Remove an installed Proton-GE version (`./proton-ge-manager.sh -r 9-10`).
 - `-p, --purge`: Remove all installed Proton-GE versions (`./proton-ge-manager.sh -p`). Prompts for confirmation; pass `-y` to skip.
+- `-I, --interactive`: Launch interactive setup wizard for guided installation.
 - `-f, --force`: Reinstall even if the version is already present.
 - `-y, --yes`: Skip confirmation prompts.
 - `-h, --help`: Display the help message.
