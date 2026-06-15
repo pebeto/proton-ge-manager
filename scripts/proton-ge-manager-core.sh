@@ -8,6 +8,13 @@ API_URL="https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/
 FORCE=0
 ASSUME_YES=0
 
+# Color codes for better output visibility
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
 display_help () {
     echo "Usage: proton-ge-manager.sh [OPTION]"
     echo
@@ -27,7 +34,7 @@ validate_version () {
     version=$1
     case "$version" in
         ""|*[!0-9-]*)
-            echo "Error: invalid version format: $version"
+            echo "${RED}Error: invalid version format: $version${NC}"
             exit 1
             ;;
     esac
@@ -39,7 +46,7 @@ install_proton_ge () {
     target_dir="$COMPATIBILITYTOOLS_DIR/GE-Proton$version"
 
     if [ -d "$target_dir" ] && [ "$FORCE" -eq 0 ]; then
-        echo "Proton-GE $version is already installed. Use -f to reinstall."
+        echo "${YELLOW}Proton-GE $version is already installed. Use -f to reinstall.${NC}"
         exit 0
     fi
 
@@ -52,21 +59,21 @@ install_proton_ge () {
     tarball=$(mktemp) || { echo "Error: mktemp failed"; exit 1; }
     trap 'rm -f "$tarball"' EXIT INT TERM
 
-    echo "Downloading Proton-GE $version..."
+    echo "${BLUE}Downloading Proton-GE $version...${NC}"
     if ! curl --fail -L -# -o "$tarball" "$tarball_url"; then
-        echo "Error: failed to download Proton-GE $version"
+        echo "${RED}Error: failed to download Proton-GE $version${NC}"
         exit 1
     fi
 
-    echo "Verifying checksum..."
+    echo "${BLUE}Verifying checksum...${NC}"
     expected=$(curl --fail -sL "$checksum_url" | awk '{print $1}')
     if [ -z "$expected" ]; then
-        echo "Error: failed to fetch checksum"
+        echo "${RED}Error: failed to fetch checksum${NC}"
         exit 1
     fi
     actual=$(sha512sum "$tarball" | awk '{print $1}')
     if [ "$expected" != "$actual" ]; then
-        echo "Error: checksum mismatch"
+        echo "${RED}Error: checksum mismatch${NC}"
         echo "  expected: $expected"
         echo "  actual:   $actual"
         exit 1
@@ -76,9 +83,9 @@ install_proton_ge () {
         rm -rf "$target_dir"
     fi
 
-    echo "Extracting Proton-GE $version..."
+    echo "${BLUE}Extracting Proton-GE $version...${NC}"
     tar -xzf "$tarball" -C "$COMPATIBILITYTOOLS_DIR" 2>&1 | grep -v "^tar:" | grep -v "^" || true
-    echo "Proton-GE $version installed successfully!"
+    echo "${GREEN}Proton-GE $version installed successfully!${NC}"
     exit 0
 }
 
@@ -89,26 +96,26 @@ get_latest_version () {
 install_latest_proton_ge () {
     latest_version=$(get_latest_version)
     if [ -z "$latest_version" ]; then
-        echo "Error: failed to determine latest version"
+        echo "${RED}Error: failed to determine latest version${NC}"
         exit 1
     fi
-    echo "Latest Proton-GE version: $latest_version"
+    echo "${BLUE}Latest Proton-GE version: $latest_version${NC}"
     install_proton_ge "$latest_version"
 }
 
 list_proton_ge () {
     if [ ! -d "$COMPATIBILITYTOOLS_DIR" ]; then
-        echo "No Proton-GE versions installed."
+        echo "${YELLOW}No Proton-GE versions installed.${NC}"
         exit 0
     fi
     found=0
     for dir in "$COMPATIBILITYTOOLS_DIR"/GE-Proton*; do
         [ -d "$dir" ] || continue
-        echo "${dir##*/GE-Proton}"
+        echo "${BLUE}${dir##*/GE-Proton}${NC}"
         found=1
     done
     if [ "$found" -eq 0 ]; then
-        echo "No Proton-GE versions installed."
+        echo "${YELLOW}No Proton-GE versions installed.${NC}"
     fi
     exit 0
 }
@@ -118,12 +125,12 @@ remove_proton_ge () {
     validate_version "$version"
     target_dir="$COMPATIBILITYTOOLS_DIR/GE-Proton$version"
     if [ ! -d "$target_dir" ]; then
-        echo "Proton-GE $version is not installed."
+        echo "${RED}Proton-GE $version is not installed.${NC}"
         exit 1
     fi
-    echo "Removing Proton-GE $version..."
+    echo "${BLUE}Removing Proton-GE $version...${NC}"
     rm -rf "$target_dir"
-    echo "Proton-GE $version removed successfully!"
+    echo "${GREEN}Proton-GE $version removed successfully!${NC}"
     exit 0
 }
 
@@ -133,12 +140,12 @@ purge_proton_ge () {
         read -r answer
         case "$answer" in
             y|Y|yes|YES) ;;
-            *) echo "Aborted."; exit 1 ;;
+            *) echo "${YELLOW}Aborted.${NC}"; exit 1 ;;
         esac
     fi
-    echo "Removing all installed Proton-GE versions..."
+    echo "${BLUE}Removing all installed Proton-GE versions...${NC}"
     rm -rf "$COMPATIBILITYTOOLS_DIR"/GE-Proton*
-    echo "All installed Proton-GE versions removed successfully!"
+    echo "${GREEN}All installed Proton-GE versions removed successfully!${NC}"
     exit 0
 }
 
@@ -189,7 +196,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         *)
-            echo "Error: Unknown option $1"
+            echo "${RED}Error: Unknown option $1${NC}"
             display_help
             ;;
     esac
