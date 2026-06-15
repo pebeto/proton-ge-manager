@@ -35,6 +35,7 @@ validate_version () {
     case "$version" in
         ""|*[!0-9-]*)
             echo "${RED}Error: invalid version format: $version${NC}"
+            echo "${YELLOW}Please use format like '9-19' or '10-0'${NC}"
             exit 1
             ;;
     esac
@@ -46,7 +47,8 @@ install_proton_ge () {
     target_dir="$COMPATIBILITYTOOLS_DIR/GE-Proton$version"
 
     if [ -d "$target_dir" ] && [ "$FORCE" -eq 0 ]; then
-        echo "${YELLOW}Proton-GE $version is already installed. Use -f to reinstall.${NC}"
+        echo "${YELLOW}Proton-GE $version is already installed.${NC}"
+        echo "${YELLOW}Use -f flag to force reinstallation.${NC}"
         exit 0
     fi
 
@@ -62,6 +64,7 @@ install_proton_ge () {
     echo "${BLUE}Downloading Proton-GE $version...${NC}"
     if ! curl --fail -L -# -o "$tarball" "$tarball_url"; then
         echo "${RED}Error: failed to download Proton-GE $version${NC}"
+        echo "${YELLOW}Check your internet connection or try again later.${NC}"
         exit 1
     fi
 
@@ -69,6 +72,7 @@ install_proton_ge () {
     expected=$(curl --fail -sL "$checksum_url" | awk '{print $1}')
     if [ -z "$expected" ]; then
         echo "${RED}Error: failed to fetch checksum${NC}"
+        echo "${YELLOW}This may indicate a network issue or GitHub API rate limiting.${NC}"
         exit 1
     fi
     actual=$(sha512sum "$tarball" | awk '{print $1}')
@@ -76,6 +80,7 @@ install_proton_ge () {
         echo "${RED}Error: checksum mismatch${NC}"
         echo "  expected: $expected"
         echo "  actual:   $actual"
+        echo "${YELLOW}The downloaded file may be corrupted. Try again.${NC}"
         exit 1
     fi
 
@@ -97,6 +102,7 @@ install_latest_proton_ge () {
     latest_version=$(get_latest_version)
     if [ -z "$latest_version" ]; then
         echo "${RED}Error: failed to determine latest version${NC}"
+        echo "${YELLOW}Check your internet connection or GitHub API status.${NC}"
         exit 1
     fi
     echo "${BLUE}Latest Proton-GE version: $latest_version${NC}"
@@ -126,6 +132,7 @@ remove_proton_ge () {
     target_dir="$COMPATIBILITYTOOLS_DIR/GE-Proton$version"
     if [ ! -d "$target_dir" ]; then
         echo "${RED}Proton-GE $version is not installed.${NC}"
+        echo "${YELLOW}Use -L to list installed versions.${NC}"
         exit 1
     fi
     echo "${BLUE}Removing Proton-GE $version...${NC}"
@@ -140,7 +147,9 @@ purge_proton_ge () {
         read -r answer
         case "$answer" in
             y|Y|yes|YES) ;;
-            *) echo "${YELLOW}Aborted.${NC}"; exit 1 ;;
+            *) echo "${YELLOW}Aborted.${NC}"
+              echo "${YELLOW}Use -y to skip confirmation next time.${NC}"
+              exit 1 ;;
         esac
     fi
     echo "${BLUE}Removing all installed Proton-GE versions...${NC}"
@@ -159,7 +168,8 @@ while [ $# -gt 0 ]; do
             ;;
         -i|--install)
             if [ -z "$2" ]; then
-                echo "Error: $1 requires a version argument"
+                echo "${RED}Error: $1 requires a version argument${NC}"
+                echo "${YELLOW}Example: $0 $1 9-19${NC}"
                 exit 1
             fi
             action="install"
@@ -176,7 +186,8 @@ while [ $# -gt 0 ]; do
             ;;
         -r|--remove)
             if [ -z "$2" ]; then
-                echo "Error: $1 requires a version argument"
+                echo "${RED}Error: $1 requires a version argument${NC}"
+                echo "${YELLOW}Example: $0 $1 9-19${NC}"
                 exit 1
             fi
             action="remove"
@@ -197,6 +208,7 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             echo "${RED}Error: Unknown option $1${NC}"
+            echo "${YELLOW}Run with -h for help.${NC}"
             display_help
             ;;
     esac
