@@ -54,12 +54,12 @@ Once it finishes, restart Steam, right-click a game, open **Properties → Compa
 The command above downloads the script, runs it once, and discards it. To manage versions over time, save it to your `PATH` instead. Replace `native` with your platform (`steamdeck`, `native`, `flatpak`, or `snap`):
 
 ```bash
-curl -fsSL https://pebeto.github.io/api/pgm/native -o ~/.local/bin/proton-ge-manager
+curl -fsSL --create-dirs https://pebeto.github.io/api/pgm/native -o ~/.local/bin/proton-ge-manager
 chmod +x ~/.local/bin/proton-ge-manager
-proton-ge-manager -l
+~/.local/bin/proton-ge-manager -l
 ```
 
-If `~/.local/bin` is not on your `PATH`, add it or choose another directory that is. After this, run `proton-ge-manager` directly with any command.
+`--create-dirs` lets `curl` create `~/.local/bin` when it's missing; Steam Deck has no such directory by default. If `~/.local/bin` is not on your `PATH`, add it or choose another directory that is; once it's there, you can run `proton-ge-manager` without the full path.
 
 ## Commands
 
